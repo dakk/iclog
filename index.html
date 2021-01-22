@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Speed / Ping Meter</title>
+<script>
+window.onload = function() {
+
+	var dataPing = [];
+	var dataDownload = [];
+	var dataUpload = [];
+
+var chart = new CanvasJS.Chart("chartContainer", {
+	animationEnabled: true,
+	theme: "light2",
+	title: {
+		text: "Speed / Ping Meter"
+	},
+	axisY: [{
+		title: "Upload",
+		titleFontSize: 18,
+		includeZero: true
+	}, {
+		title: "Download",
+		titleFontSize: 18,
+		includeZero: true
+	}],
+	axisY2: {
+		title: "Ping",
+		titleFontSize: 18,
+		includeZero: true
+	},
+	toolTip: {
+		shared: true
+	},
+	data: [{
+		type: "line",      
+		name: 'Upload Speed',
+		yValueFormatString: "# Mb",
+		dataPoints: dataUpload
+	}, {
+		type: "line",         
+		name: 'Download Speed',
+		yValueFormatString: "# Mb",
+		dataPoints: dataDownload
+	}, {
+		type: "line",        
+		axisYType: "secondary",  
+		name: 'Ping',
+		yValueFormatString: "# ms",
+		dataPoints: dataPing
+	}]
+});
+
+
+
+function addData(data) {
+	for (var i = 0; i < data.length; i++) {
+		var dd = new Date (Date.parse(data[i][3]));
+
+		console.log(data[i][5])
+
+		dataPing.push({
+			x: dd,
+			y: parseFloat(data[i][5])
+		});
+		dataUpload.push({
+			x: dd,
+			y: data[i][7] / 1024/1024
+		});
+		dataDownload.push({
+			x: dd,
+			y: data[i][6] / 1024/1024
+		});
+	}
+	chart.render();
+}
+
+
+	
+var data;
+$.ajax({
+	type: "GET",  
+	url: "iclog.csv?t=" + Math.random(),
+	dataType: "text",       
+	success: function(response) {
+		data = $.csv.toArrays(response);
+		addData(data);
+	}   
+});
+
+}
+</script>
+<body>
+<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+<br>
+<p>Created by delegate dakk</p>
+<script src="jquery-1.11.1.min.js"></script>
+<script src="canvasjs.min.js"></script>
+<script src="jquery.csv-0.71.min.js"></script>
+</body>
+</html>
